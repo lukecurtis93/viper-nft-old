@@ -21,7 +21,7 @@ export default new Vuex.Store({
   },
   mutations: {
     storeViper(state, payload) {
-      state.vipers.push({...payload, ...{url: vipersMap[payload.events.Birth.returnValues.genes]}})
+      state.vipers.push({...payload, ...{ url: vipersMap[payload.genes]}})
     },
     removeViper(state, payload) {
       const index = state.vipers.indexOf(payload.id)
@@ -42,9 +42,10 @@ export default new Vuex.Store({
       })
 
       if(!receipt) return
-      receipt.forEach(r => {
-        const viper = this.state.ethereum.contractInstance.methods.getViperDetails(r).call({
-          from: this.state.ethereum.account,
+
+      for(let r of receipt) {
+        const viper = await this.state.ethereum.contractInstance.methods.getViperDetails(r).call({
+          from: this.state.ethereum.account[0],
         })
 
         if(!viper) return
@@ -55,7 +56,7 @@ export default new Vuex.Store({
           matron: viper[2],
           sire: viper[3],
         })
-      })
+      }
     },
     async initEthereum({commit}) {
       if (window.ethereum) {
